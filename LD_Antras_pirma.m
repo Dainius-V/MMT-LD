@@ -3,43 +3,44 @@
 function LD_Antras_pirma()
 clear all
 close all
-a=mod(20200033,6);
+a=mod(20200033,6); %varianto parinkimas
 fprintf('mod(20200033) = %d', a);
+%Error skaiciavimam masyvai:
 le=[]
 ne=[]
 ce=[]
 pe=[]
 spe=[]
-
+%Max error skaiciavimam masyvai:
 lme=[]
 nme=[]
 cme=[]
 pme=[]
 spme=[]
-N=[2 3 5 7 9] %galima varijuoti N, didinant paklaida dideja
-for i=1:5
+N=[2 3 5 7 9] %Aproksimacijos eiles
+for i=1:5 %Ciklas prasukamas 5 kartus, nes lagaranzo, niutono, cebysevo, pade, spline
     
     x=linspace(-10,10,N(i)); %Sugeneruojame -10 <= x <= 10 skaicius 
-    yN=f1(x) %Apskaiciuojame lygti pagal sugeneruotus skaicius
+    yN=f1(x) %Apskaiciuojame lygti pagal sugeneruotus skaicius 
+    %f1 - lygties funkcija
 
     %Aproksimacijos:
-    l=lagranp(x,yN); %Lagaranþo
+    l=lagranp(x,yN); %Lagaran?o
     n=newtonp(x,yN); %Niutono
-    c=cheby('f1',N(i),min(x),max(x)) %Èebyðevo
+    c=cheby('f1',N(i),min(x),max(x)) %?eby?evo
     xo=-10;10;
     Mp = 3; Np = 2;
     p=padeap('f1',xo,Mp,Np) %Pade
     
-
-
     xx=linspace(-10,10,100);
-    yl = polyval(l,xx); %Lagaranþo
+    yl = polyval(l,xx); %Lagaran?o
     y2 = polyval(n,xx); %Niutono
-    y3 = polyval(c,xx); %Èebyðevo
+    y3 = polyval(c,xx); %?eby?evo
     y4 = polyval(p,xx); %Pade
     y5 = spline(x,yN,xx);%Splainai
     ymax = f1(xx)
-    %Max
+    
+    %Max error
     lme(i)= max(ymax-yl);
     nme(i)= max(ymax-y2);
     cme(i)= max(ymax-y3);
@@ -54,8 +55,8 @@ for i=1:5
     spe(i)=immse(xx,y5);
     
     
-
-    %Atvaizdavimas
+    %Atvaizdavimas 5 grafikai (total 25)
+    %geriau atvaizduoti ant vieno be subplot
     subplot(3,2,1)
     plot(xx,y3,'b-',x,yN,'*', xx, f1(xx));grid
     title('Cebysevo daugianaris ');
@@ -76,11 +77,13 @@ for i=1:5
     plot(xx,y5);grid
     title('Spline daugianaris');
     fprintf('N = %d\n',N(i));
-    pause
+    pause % padarom pauze, paspaudus enter pasikeis aproksimacijos eile
+    close all
 end
 fprintf('finished\n');
-%error err = immse(X,Y):
+
 xxe=linspace(-10,10,100);
+%Visu aproksimaciju klaidu duomenims issaugoti masyvai:
 errl=[]
 errn=[]
 errc=[]
@@ -88,13 +91,15 @@ errp=[]
 errs=[]
 errxmax=[]
 
-
+%paleidziame cikla uzpildyti klaidu kintamuosius (MSE)
 for ie=1:5
     fprintf('%d\n\',N(ie));
     errl(ie)=le(ie);errn(ie)=ne(ie);errc(ie)=ce(ie);errp(ie)=pe(ie);
     errs(ie)=spe(ie);
 
 end
+
+%paleidziame cikla uzpildyti klaidu kintamuosius (MAX)
 errml=[]
 errmn=[]
 errmc=[]
@@ -107,15 +112,16 @@ for ie=1:5
 end
 
 fprintf('arrays filled \n\');
-pause
+pause % Pauze, kad zinoti kada uzsipildys masyvai
 
-fprintf('arrays filled 2\n\');
-Ne=[2 3 5 7 9]
+Ne=[2 3 5 7 9] % aproksimacijos eiles klaidu palyginimo grafikui
+%Atvaizdavimas:
 %MSE
 plot(Ne,errl,Ne,errn,Ne,errc,Ne,errs)
 grid;
 fprintf('errors shown \n\');
 pause
+close all %uzdarom grafika
 %MAX
 plot(Ne,errml,Ne,errmn,Ne,errmc,Ne,errms)
 grid;
@@ -124,13 +130,13 @@ pause
 
 end
 
-%Gauta funkcija
+%Gauta funkcija 1 varianto
 function y=f1(x)
 
 y=1./(1+exp(x))
 end
 
-%Lagaranþo
+%Lagaran?o
 function [l,L]=lagranp(x,y)
 
 %Input : x = [x0 x1 ... xN], y = [y0 y1 ... yN]
@@ -169,7 +175,7 @@ for k = N:-1:1 %Eq.(3.2.7)
 end
 end
 
-%Èebyðevo:
+%?eby?evo:
 function [c,x,y] = cheby(f,N,a,b)
 %Input : f = function name on [a,b]
 %Output: c = Newton polynomial coefficients of degree N
