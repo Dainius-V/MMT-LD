@@ -5,66 +5,122 @@ clear all
 close all
 a=mod(20200033,6);
 fprintf('mod(20200033) = %d', a);
-N=21 %galima varijuoti N, didinant paklaida dideja
-x=linspace(-10,10,N); %Sugeneruojame -10 <= x <= 10 skaicius 
-yN=f1(x) %Apskaiciuojame lygti pagal sugeneruotus skaicius
+le=[]
+ne=[]
+ce=[]
+pe=[]
+spe=[]
 
-%Aproksimacijos:
-l=lagranp(x,yN); %Lagaranþo
-n=newtonp(x,yN); %Niutono
-c=cheby('f1',N,min(x),max(x)) %Èebyðevo
-xo=-10;10;
-Mp = 3; Np = 2;
-p=padeap('f1',xo,Mp,Np) %Pade
+lme=[]
+nme=[]
+cme=[]
+pme=[]
+spme=[]
+N=[2 3 5 7 9] %galima varijuoti N, didinant paklaida dideja
+for i=1:5
+    
+    x=linspace(-10,10,N(i)); %Sugeneruojame -10 <= x <= 10 skaicius 
+    yN=f1(x) %Apskaiciuojame lygti pagal sugeneruotus skaicius
+
+    %Aproksimacijos:
+    l=lagranp(x,yN); %Lagaranþo
+    n=newtonp(x,yN); %Niutono
+    c=cheby('f1',N(i),min(x),max(x)) %Èebyðevo
+    xo=-10;10;
+    Mp = 3; Np = 2;
+    p=padeap('f1',xo,Mp,Np) %Pade
+    
 
 
-xx=linspace(-10,10,100);
-yl = polyval(l,xx); %Lagaranþo
-y2 = polyval(n,xx); %Niutono
-y3 = polyval(c,xx); %Èebyðevo
-y4 = polyval(p,xx); %Pade
-y5 = spline(x,yN,xx);%Splainai
+    xx=linspace(-10,10,100);
+    yl = polyval(l,xx); %Lagaranþo
+    y2 = polyval(n,xx); %Niutono
+    y3 = polyval(c,xx); %Èebyðevo
+    y4 = polyval(p,xx); %Pade
+    y5 = spline(x,yN,xx);%Splainai
+    ymax = f1(xx)
+    %Max
+    lme(i)= max(ymax-yl);
+    nme(i)= max(ymax-y2);
+    cme(i)= max(ymax-y3);
+    spme(i)= max(ymax-y5);
+    
+    
+    %MSE
+    le(i)=immse(xx,yl);
+    ne(i)=immse(xx,y2);
+    ce(i)=immse(xx,y3);
+    pe(i)=immse(xx,y4);
+    spe(i)=immse(xx,y5);
+    
+    
+
+    %Atvaizdavimas
+    subplot(3,2,1)
+    plot(xx,y3,'b-',x,yN,'*', xx, f1(xx));grid
+    title('Cebysevo daugianaris ');
+
+    subplot(3,2,2)
+    plot(xx,y2,'r-',x,yN,'*', xx, f1(xx));grid
+    title('Niutono daugianaris');
+
+    subplot(3,2,3)
+    plot(xx,yl,'g-',x,yN,'*', xx, f1(xx));grid
+    title('Lagaranzo daugianaris');
+
+    subplot(3,2,4)
+    plot(xx,y4,'g-',x,yN,'*', xx, f1(xx));grid
+    title('Pade daugianaris');
+
+    subplot(3,2,5)
+    plot(xx,y5);grid
+    title('Spline daugianaris');
+    fprintf('N = %d\n',N(i));
+    pause
+end
+fprintf('finished\n');
+%error err = immse(X,Y):
+xxe=linspace(-10,10,100);
+errl=[]
+errn=[]
+errc=[]
+errp=[]
+errs=[]
+errxmax=[]
 
 
-%Atvaizdavimas
-subplot(3,2,1)
-plot(xx,y3,'b-',x,yN,'*', xx, f1(xx));grid
-title('Cebysevo daugianaris');
+for ie=1:5
+    fprintf('%d\n\',N(ie));
+    errl(ie)=le(ie);errn(ie)=ne(ie);errc(ie)=ce(ie);errp(ie)=pe(ie);
+    errs(ie)=spe(ie);
 
-subplot(3,2,2)
-plot(xx,y2,'r-',x,yN,'*', xx, f1(xx));grid
-title('Niutono daugianaris');
+end
+errml=[]
+errmn=[]
+errmc=[]
+errms=[]
+for ie=1:5
+    fprintf('%d\n\',N(ie));
+    errml(ie)=lme(i);errmn(ie)=nme(ie);errmc(ie)=cme(ie);
+    errms(ie)=spme(ie);
 
-subplot(3,2,3)
-plot(xx,yl,'g-',x,yN,'*', xx, f1(xx));grid
-title('Lagaranzo daugianaris');
+end
 
-subplot(3,2,4)
-plot(xx,y4,'g-',x,yN,'*', xx, f1(xx));grid
-title('Pade daugianaris');
+fprintf('arrays filled \n\');
+pause
 
-subplot(3,2,5)
-plot(xx,y5);grid
-title('Spline daugianaris');
-
-%subplot(3,2,6)
-%plot(err1,err2);grid
-%title('MSE');
-
-%MSE (vidutinës kvadratinës klaidos) 
-ye=f1(xx)
-err1 = immse(ye,yl);
-err2 = immse(ye,y2);
-err3 = immse(ye,y3);
-err4 = immse(ye,y4);
-err5 = immse(ye,y5);
-
-fprintf('err1 - %f\n\n', err1);
-fprintf('err2 - %f\n\n', err2);
-fprintf('err3 - %f\n\n', err3);
-fprintf('err4 - %f\n\n', err4);
-fprintf('err5 - %f\n\n', err5);
-
+fprintf('arrays filled 2\n\');
+Ne=[2 3 5 7 9]
+%MSE
+plot(Ne,errl,Ne,errn,Ne,errc,Ne,errs)
+grid;
+fprintf('errors shown \n\');
+pause
+%MAX
+plot(Ne,errml,Ne,errmn,Ne,errmc,Ne,errms)
+grid;
+fprintf('max shown \n\');
+pause
 
 end
 
