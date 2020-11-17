@@ -1,27 +1,28 @@
 % MMT LD nr. 3 Dainius Varna EKSfm20
 %mod(20200033,6) = 1
-% U(V) 0.1 I(A) 0.8139*10^-4
+% I = I0 ( exp(Ue/kT)-1 )
+% k = 1.38*10^-23; e = 1.602*10^-19;
+% y(1) = x(1)*(exp((x1*e)/(k*(x(2))))-1);
+% U = 0.14; I = 4.8007*10^-4;
 % U(V) 0.12 I(A) 1.9808*10^-4
-
-
 function run_ld3()
 format short;
 clc;
 
-x0 = [0.8139*10^-4 1.9808*10^-4]; % I - atsakymai spejimui
-[x,err,xx] = newtons('f46',x0,1e-5,20);
+x0 = [4.8007*10^-4 1.9808*10^-4]; % I - atsakymai spejimui
+[x,err,xx] = newtons('fja',x0,1e-5,20);
 xx
 x
 
 
 end
 
-function y = f46(x)
-e = (1.602 * 10^-19);
-k = (1.38*10^-23);
-x1 = 0.1; x2=0.12;
-y(1) = x(1)*(exp((x1*e)/(k*(x(2))))-1);
-y(2) = x(1)*(exp((x2*e)/(k*(x(2))))-1);
+function y = fja(x)
+e=1.602*10^-19;
+k=1.38*10^-23;
+y(1) = (x(1)*(exp((0.14*e)/(k*x(2)))-1))-4.8007*10^-4;%f-ija kai U=0.14
+y(2) = (x(1)*(exp((0.12*e)/(k*x(2)))-1))-1.9808*10^-4;%f-ija kai U=0.12
+
 end
 
 function [x,fx,xx] = newtons(f,x0,TolX,MaxIter,varargin)
